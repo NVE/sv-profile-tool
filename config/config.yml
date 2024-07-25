@@ -1,0 +1,100 @@
+map:
+  crs_map: 4326
+  crs_default: 25833
+  base_wms: {
+              'Faresoner': 
+                {'url': 'https://nve.geodataonline.no/arcgis/services/SkredKvikkleire2/MapServer/WMSServer', 
+                'layers': 'KvikkleireFaregrad'},
+              'Aktsomhetsomr. kvkl': 
+                {'url': 'https://nve.geodataonline.no/arcgis/services/KvikkleireskredAktsomhet/MapServer/WMSServer', 
+                'layers':  "KvikkleireskredAktsomhet"},
+              'NADAG': 
+                {'url': "http://geo.ngu.no/geoserver/nadag/wms", 
+                'layers': "GB_standard,GBU_clustered_50px_nolimit", }
+              }
+
+
+soundings:
+  method_translator: {"total": "TOT", "rotary_pressure_sounding": "DTS", "cpt": "CPT"}
+  flushing_threshold: 0.1
+  rotation_threshold: 50
+  thickness_limit: 1.0
+  min_length_sounding_data: 5
+
+plotting:
+  columns: {"force": "penetration_force",
+            "depth": "depth",
+            "ramming_flag": "hammering",
+            "flushing_flag": "flushing",
+            "rotation_flag": "increased_rotation_rate",
+            "comments": "comment_code"
+
+            }
+  plot_width: 50
+
+gui:
+
+callbacks:
+
+fm_api:
+  method_dict: {"cpt": 1, "tot": 2, "rp": 3, "sa": 4, "pz": 5, "ss": 6, "rws": 7, "rcd": 8,
+                "rs": 9, "svt": 10, "spt": 11, "cd": 12, "tp": 13, "pt": 14, "esa": 15, "ad": 16,
+                "ro": 17, "inc": 18, "sr": 19, "iw": 20, "dt": 21, "other": 22, "srs": 23, "dp": 24,
+                "wst": 25}
+  method_dict_rev: {1: 'cpt', 2: 'tot', 3: 'rp', 4: 'sa', 5: 'pz', 6: 'ss', 7: 'rws', 8: 'rcd', 9: 'rs', 10: 'svt',
+                    11: 'spt', 12: 'cd', 13: 'tp', 14: 'pt', 15: 'esa', 16: 'ad', 17: 'ro', 18: 'inc', 19: 'sr',
+                    20: 'iw', 21: 'dt', 22: 'other', 23: 'srs', 24: 'dp', 25: 'wst'}
+  method_types_filter: ('cpt', 'rp', 'sa', 'tot')
+  sounding_types: ['cpt', 'rp', 'tot']
+  samples_types: ['sa']
+  method_status: {1: "planned", 2: "ready", 3: "conducted", 4: "voided", 5: "approved"}
+  encoding: 'iso-8859-15'
+  request_limit: 10_000
+
+
+profile:
+  hoydedata_layer: "NHM_DTM_25833"
+  hoydedata_url: https://hoydedata.no/arcgis/rest/services/{}/ImageServer/exportImage?bbox={},{},{},{}&size={},{}&bboxSR=&size=&imageSR=&time=&format=tiff&pixelType=F32&noData={}&noDataInterpretation=esriNoDataMatchAny&interpolation=+RSP_BilinearInterpolation&compression=&compressionQuality=&bandIds=&mosaicRule=&renderingRule=&f=image
+
+
+
+buildings_api:
+  url: "https://wfs.geonorge.no/skwms1/wfs.matrikkelen-bygningspunkt"
+  columns:  ['bygningsnummer', 'bygningsstatus', 'kommunenavn', 'bygningstype',  'bygningId', 'geometry']
+  query_filter: "bygningsstatus not in ('GR', 'IP', 'BR', 'BF', 'IG')"
+
+
+nadag_fgdb:
+  sonderingstype_to_method_type: {'KombinasjonSondering': 'tot', 
+                                  'Trykksondering': 'cpt',
+                                  'StatiskSondering': 'rp'}
+
+
+  data_to_data: {'anvendtlast': 'penetration_force', 
+                 'boretlengde': 'depth', 
+                 'dreiemoment': 'rotation_moment', # ????
+                 'kombinasjonsondering_fk': 'method_id',
+                 'trykksondering_fk': 'method_id',
+                 'statisksondering_fk': 'method_id',
+                 'nedpressinghastighet': 'penetration_rate', 
+                 'nedpressingtrykk': 'qc', # ???? <--- cpt
+                 'friksjon': 'fs', # ???? <--- cpt
+                 'poretrykk': 'u2', # ???? <--- cpt
+                 'nedpressingtid': 'penetration_time', # ????
+                 'observasjonkode': 'comment_code', 
+                 'observasjonmerknad': 'comment', 
+                 'rotasjonhastighet': 'rotation_rate',
+                 'slagfrekvens': 'hammering_rate', # ????
+                 'spylemengde': 'flushing_flow', 
+                 'spyletrykk': 'flushing_pressure'}
+
+  flag_codes: {
+                'hammering_starts': ["11", "15", "63"],
+                'hammering_ends': ["16", "64"],
+                'increased_rotation_rate_starts': ["51"],
+                'increased_rotation_rate_ends': ["52"],
+                'flushing_starts': ["14", "63"],
+                'flushing_ends': ["62", "64"],
+
+  
+  }
